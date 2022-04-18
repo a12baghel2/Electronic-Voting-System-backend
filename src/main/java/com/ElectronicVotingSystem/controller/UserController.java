@@ -33,7 +33,7 @@ public class UserController {
 	
 	@GetMapping("{id}")
 	public ResponseEntity<UserProfile> getUserById(@PathVariable long id){
-		UserProfile user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User does not exist with this id"));
+		UserProfile user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User does not exist with this id: "+id));
 		return ResponseEntity.ok(user);
 	}
 	
@@ -45,7 +45,7 @@ public class UserController {
 
 	@DeleteMapping("{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable long id){
-		UserProfile userProfile = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User Does not exist with this id"));
+		UserProfile userProfile = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User Does not exist with this id: "+id));
 		userRepository.delete(userProfile);
 		return ResponseEntity.noContent().build();
 	}
