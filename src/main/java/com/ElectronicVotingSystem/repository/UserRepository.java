@@ -8,5 +8,5 @@ import com.ElectronicVotingSystem.model.UserProfile;
 
 public interface UserRepository extends JpaRepository<UserProfile, Long>{
 	Optional<UserProfile> findUserById(Long userId); 
-	UserProfile findByEmail(String email);
+	UserProfile findByEmailId(String email);
 }
