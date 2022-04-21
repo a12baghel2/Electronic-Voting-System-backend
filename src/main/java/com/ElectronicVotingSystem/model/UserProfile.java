@@ -1,12 +1,19 @@
 package com.ElectronicVotingSystem.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,11 +23,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Data
 @Table(name = "User")
 public class UserProfile {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 	
 	@Column(name = "name")
 	private String name;
@@ -42,6 +50,29 @@ public class UserProfile {
 	
 	@Column(name = "emailId")
 	private String emailId;
+	
+	@Column(name = "password")
+	private String password;
+	
+	@Column(name = "role")
+	@ManyToMany(fetch = FetchType.EAGER)
+	private Collection<UserType> role = new ArrayList<>();
+	
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	public String getPassword() {
+		return this.password;
+	}
+	
+	public void setRole(ArrayList<UserType> role) {
+		this.role = role;
+	}
+	
+	public Collection<UserType> getRole() {
+		return this.role;
+	}
 	
 	public void setName(String name) {
 		this.name = name;

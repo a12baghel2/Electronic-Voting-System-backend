@@ -6,4 +6,6 @@ import com.ElectronicVotingSystem.model.UserType;
 
 public interface UserTypeRepository extends JpaRepository<UserType, Long> {
 
+	UserType findByType(String name);
+
 }
