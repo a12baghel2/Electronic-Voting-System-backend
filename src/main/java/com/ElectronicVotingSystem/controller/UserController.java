@@ -1,72 +1,83 @@
 package com.ElectronicVotingSystem.controller;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ElectronicVotingSystem.model.Candidate;
-import com.ElectronicVotingSystem.model.Election;
-import com.ElectronicVotingSystem.model.Party;
-import com.ElectronicVotingSystem.repository.CandidateRepo;
-import com.ElectronicVotingSystem.repository.ElectionRepo;
-import com.ElectronicVotingSystem.repository.PartyRepo;
-
+import com.ElectronicVotingSystem.configuration.JwtUtil;
+import com.ElectronicVotingSystem.model.DAOUser;
+import com.ElectronicVotingSystem.model.VoterId;
+import com.ElectronicVotingSystem.repository.UserRepository;
+import com.ElectronicVotingSystem.repository.VoterIdRepo;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/user")
 public class UserController {
 	
 	@Autowired
-	private PartyRepo partyRepo;
+	private VoterIdRepo voterIdRepo;
 	
 	@Autowired
-	private CandidateRepo candidateRepo;
+	private UserRepository userRepository;
 	
 	@Autowired
-	private ElectionRepo electionRepo;
+	private PasswordEncoder bcryptEncoder;
 	
-	@PostMapping("/add/election")
-	public Election addElection(@RequestBody Election election) {
-		return electionRepo.save(election);
+	@Autowired
+	private JwtUtil jwtTokenUtil;
+	
+	@PostMapping("/voterid/requested")
+	public ResponseEntity<?> requestedVoterId( HttpServletRequest request, HttpServletResponse response){
+		String username = getUsername(request, response);
+		String name = userRepository.findByUsername(username).getName();
+		VoterId voterId = new VoterId(); 
+		voterId.setName(name);
+		voterId.setIsRequested(true);
+		voterIdRepo.save(voterId);
+		return ResponseEntity.ok().build();
 	}
 	
-	@GetMapping("/upcoming")
-	public List<Election> getUpcomingElection(){
-		return electionRepo.findAll();
+	@GetMapping("/voterid")
+	public long getVoterId(HttpServletRequest request, HttpServletResponse response) {
+		String username = getUsername(request, response);
+		String name = userRepository.findByUsername(username).getName();
+		return voterIdRepo.findByName(name).getId();
 	}
 	
-	@PostMapping("/add/party")
-	public Party addPartyDeatils(@RequestBody Party party) {
-		return partyRepo.save(party);
+	@PutMapping("/resetpass")
+	public boolean updatePassword(@RequestBody String password, HttpServletRequest request, HttpServletResponse response) {
+		String username = getUsername(request, response);
+		DAOUser user = userRepository.findByUsername(username);
+		user.setPassword(bcryptEncoder.encode(password));
+		userRepository.save(user);
+		return true;
 	}
 	
-	@GetMapping("/view/party")
-	public List<Party> getPartyDetail(){
-		return partyRepo.findAll();
+	private String getUsername(HttpServletRequest request, HttpServletResponse response) {
+		String jwtToken = extractJwtFromRequest(request);
+		if (StringUtils.hasText(jwtToken) && jwtTokenUtil.validateToken(jwtToken)) {
+			return jwtTokenUtil.getUsernameFromToken(jwtToken);
+		}
+		return null;
 	}
 	
-	@PostMapping("/assign/candidate")
-	public Candidate addCandidateToElection(@RequestBody Candidate candidate) {
-		return candidateRepo.save(candidate);
+	private String extractJwtFromRequest(HttpServletRequest request) {
+		String bearerToken = request.getHeader("Authorization");
+		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+			return bearerToken.substring(7, bearerToken.length());
+		}
+		return null;
 	}
-	
-	@GetMapping("/detail/candidate/all")
-	public List<Candidate> getAllCandidate(){
-		return candidateRepo.findAll();
-	}
-	
-	@GetMapping("/detail/candidate/{name}")
-	public Candidate getParticularCandidate(@PathVariable String name){
-		return candidateRepo.findByName(name);
-	}
-	
 }
-

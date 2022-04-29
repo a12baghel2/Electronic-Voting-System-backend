@@ -7,6 +7,6 @@ import com.ElectronicVotingSystem.model.Candidate;
 
 @Repository
 public interface CandidateRepo extends JpaRepository<Candidate, Long> {
-	Candidate findByName(String name);
+	Candidate findBycandidateName(String name);
 	Candidate findByPartyName(String partyName);
 }

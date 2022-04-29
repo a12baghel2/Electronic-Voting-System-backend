@@ -42,7 +42,7 @@ public class Party {
 		return this.symbol;
 	}
 	
-	public void setSysmbol(String symbol) {
+	public void setSymbol(String symbol) {
 		this.symbol = symbol;
 	}
 	
