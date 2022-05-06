@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,12 +44,18 @@ public class AdminController {
 		return voterIdRepo.findAll();
 	}
 	
-	@PostMapping("/approve/pending/voterid")
+	@PutMapping("/approve/pending/voterid")
 	public boolean getApprovedStatus(@RequestBody String name) {
 		VoterId voterId = voterIdRepo.findByName(name);
 		voterId.setIsAdminApproved(true);
 		voterIdRepo.save(voterId);
 		return true;
+	}
+	
+	@GetMapping("/declare/result")
+	public List<Candidate> getResult() {
+		List<Candidate> list = candidateRepo.findByOrderByVoteCountDesc();
+		return list;
 	}
 	
 	@PostMapping("/add/election")

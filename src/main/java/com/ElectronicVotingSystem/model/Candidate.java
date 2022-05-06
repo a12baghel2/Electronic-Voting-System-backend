@@ -25,6 +25,17 @@ public class Candidate {
 	private String address;
 	@Column
 	private String contact;
+	@Column
+	private long voteCount = 0;
+	
+	public void setVoteCount() {
+		this.voteCount += 1;
+	}
+	
+	public long getVoteCount() {
+		return this.voteCount;
+	}
+	
 	
 	public void setCandidateName(String name) {
 		this.candidateName = name;

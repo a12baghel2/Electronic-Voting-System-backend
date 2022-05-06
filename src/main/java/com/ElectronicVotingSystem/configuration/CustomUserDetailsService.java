@@ -46,6 +46,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 		newUser.setUsername(user.getUsername());
 		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
 		newUser.setRole(user.getRole());
+		newUser.setDob(user.getDob());
+		newUser.setGender(user.getGender());
+		newUser.setName(user.getName());
+		newUser.setPermanentAddress(user.getPermanentAddress());
+		newUser.setPresentAddress(user.getPresentAddress());
+		newUser.setPhoneNumber(user.getPhoneNumber());
 		return userDao.save(newUser);
 	}
 

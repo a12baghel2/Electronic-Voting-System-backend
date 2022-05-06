@@ -1,5 +1,7 @@
 package com.ElectronicVotingSystem.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -9,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,8 +19,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ElectronicVotingSystem.configuration.JwtUtil;
+import com.ElectronicVotingSystem.model.Candidate;
 import com.ElectronicVotingSystem.model.DAOUser;
 import com.ElectronicVotingSystem.model.VoterId;
+import com.ElectronicVotingSystem.repository.CandidateRepo;
 import com.ElectronicVotingSystem.repository.UserRepository;
 import com.ElectronicVotingSystem.repository.VoterIdRepo;
 
@@ -28,6 +33,9 @@ public class UserController {
 	
 	@Autowired
 	private VoterIdRepo voterIdRepo;
+	
+	@Autowired
+	private CandidateRepo candidateRepo;
 	
 	@Autowired
 	private UserRepository userRepository;
@@ -49,11 +57,26 @@ public class UserController {
 		return ResponseEntity.ok().build();
 	}
 	
+	@PutMapping("/castvote/{name}")
+	public boolean castVote(@PathVariable String name) {
+		System.out.print(name);
+		Candidate candidate = candidateRepo.findBycandidateName(name);
+		candidate.setVoteCount();
+		candidateRepo.save(candidate);
+		return true;
+	}
+	
 	@GetMapping("/voterid")
 	public long getVoterId(HttpServletRequest request, HttpServletResponse response) {
 		String username = getUsername(request, response);
 		String name = userRepository.findByUsername(username).getName();
 		return voterIdRepo.findByName(name).getId();
+	}
+	
+	@GetMapping("/result")
+	public List<Candidate> getResult() {
+		List<Candidate> list = candidateRepo.findByOrderByVoteCountDesc();
+		return list;
 	}
 	
 	@PutMapping("/resetpass")
